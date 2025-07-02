@@ -54,7 +54,7 @@ Example scientific datasets used in this work:
 
 | Dataset         | Description                          | Download Link                                                        |
 |:----------------|:--------------------------------------|:---------------------------------------------------------------------|
-| **Liangji Change it**         | Combustion ignition dataset            | [Zenodo](https://doi.org/10.5281/zenodo.6352377)                     |
+| **Turb-Rot**         | Rotating turbulence dataset            | [Google Drive](https://drive.google.com/file/d/1tGPeNJqt2lDUs4doWdGHk4WIciIz1rqC/view?usp=drive_link)                     |
 
 Download and organize datasets into the `./data/` folder as per instructions in `data/README.md`.
 
