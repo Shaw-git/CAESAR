@@ -55,7 +55,7 @@ Example scientific datasets used in this work:
 
 | Dataset         | Description                          | Download Link                                                        |
 |:----------------|:--------------------------------------|:---------------------------------------------------------------------|
-| **Turb-Rot**         | Rotating turbulence dataset            | [Google Drive](https://drive.google.com/file/d/1tGPeNJqt2lDUs4doWdGHk4WIciIz1rqC/view?usp=drive_link)                     |
+| **Turb-Rot**         | Rotating turbulence dataset            | [Google Drive](https://drive.google.com/file/d/16nusjTsjxjpvRNBzusrpT2mUKi0Cg3VS/view?usp=drive_link)                     |
 
 Download and organize datasets into the `./data/` folder as per instructions in `data/README.md`.
 
