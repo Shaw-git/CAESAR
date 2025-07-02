@@ -39,8 +39,8 @@ We provide 3 pretrained models for evaluation:
 
 | Model                   | Description                                     | Download Link                                           |
 |:------------------------|:------------------------------------------------|:-------------------------------------------------------|
-| `caesar_v.pth`           | Variational Autoencoder-based compression       | [Download](https://yourdomain.com/models/caesar_v.pth) |
-| `caesar_d.pth`           |Generative model based compression               | [Download](https://yourdomain.com/models/caesar_sr.pth)|
+| `caesar_v.pth`           | Variational Autoencoder Based Compression       | [Download](https://yourdomain.com/models/caesar_v.pth) |
+| `caesar_d.pth`           |Generative Model Based Compression               | [Download](https://yourdomain.com/models/caesar_sr.pth)|
 
 > 📂 Place downloaded models into the `./pretrained/` folder.
 
