@@ -22,7 +22,6 @@ def super_resolution_model(img_size = 64, in_chans=32, out_chans=1, sr_dim = "HA
             loaded_params, not_loaded_params = sr_model.load_part_model("./pretrain/BCRN_SRx4.pth")
         else:
             loaded_params, not_loaded_params = [], sr_model.parameters()
-        print("Loading BCRN model")
         
         return sr_model, loaded_params, not_loaded_params
 

@@ -333,13 +333,14 @@ class PCACompressor:
         
         process_mask = bytes_to_bits(process_mask, meta_data["n_vec"])
         process_mask = torch.from_numpy(np.ascontiguousarray(process_mask)).to(self.device, non_blocking=True)
-
+        
         prefix_mask = np.asarray(codec.decode(compressed_data["prefix_mask"],'|u1').cpu())
         prefix_mask = bytes_to_bits(prefix_mask, meta_data["prefix_length"])
         prefix_mask = torch.from_numpy(np.ascontiguousarray(prefix_mask)).to(self.device, non_blocking=True)
         
         
         mask_length = torch.from_numpy(np.asarray(codec.decode(compressed_data["mask_length"], '|u1').cpu())).to(self.device, non_blocking=True)
+        
         coeff_int = torch.from_numpy(np.asarray(codec.decode(compressed_data["coeff_int"], meta_data["coeff_dtype"]).cpu())).to(self.device, non_blocking=True)
         
 #         minimal_bit = meta_data["minimal_bit"]
