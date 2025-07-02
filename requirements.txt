@@ -1,0 +1,16 @@
+#python 3.10.13
+torch==2.2.0+cu118
+torchvision==0.17.0+cu118
+--extra-index-url https://download.pytorch.org/whl/cu118
+numpy<2
+scipy==1.15.3
+tqdm==4.67.1
+einops==0.8.1
+pyyaml==6.0.2
+cupy-cuda11x==13.4.1
+nvidia-nvcomp-cu11
+bsconv==0.4.0
+einops-exts==0.0.4
+rotary-embedding-torch==0.8.6
+compressai==1.2.6
+imageio==2.37.0
