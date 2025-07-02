@@ -43,7 +43,8 @@ We provide 3 pretrained models for evaluation:
 |:------------------------|:------------------------------------------------|:-------------------------------------------------------|
 | `caesar_v.pth`           | Variational Autoencoder Based Compression       | [Download](https://yourdomain.com/models/caesar_v.pth) |
 | `caesar_d.pth`           |Generative Model Based Compression               | [Download](https://yourdomain.com/models/caesar_sr.pth)|
-
+| `caesar_v_Turb-Rot.pth`  |CAESAE-v Finetuned on Turb-Rot data              | [Google Drive](https://drive.google.com/file/d/1fF8MTTWofyq2ihrc1dn0yfrLtZyE1bR9/view?usp=drive_link)|
+| `caesar_d_Turb-Rot.pth`  |CAESAE-d Finetuned on Turb-Rot data              | [Google Drive](https://drive.google.com/file/d/1EjyD93FPgwpPDbdWbW9vT1_Cph_JqTis/view?usp=drive_link)|
 > 📂 Place downloaded models into the `./pretrained/` folder.
 
 ---
