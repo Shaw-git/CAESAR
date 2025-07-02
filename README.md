@@ -40,8 +40,7 @@ We provide 3 pretrained models for evaluation:
 | Model                   | Description                                     | Download Link                                           |
 |:------------------------|:------------------------------------------------|:-------------------------------------------------------|
 | `caesar_v.pth`           | Variational Autoencoder-based compression       | [Download](https://yourdomain.com/models/caesar_v.pth) |
-| `caesar_sr.pth`          | Autoencoder with super-resolution module        | [Download](https://yourdomain.com/models/caesar_sr.pth)|
-| `caesar_diffusion.pth`   | Conditional diffusion-based generative model    | [Download](https://yourdomain.com/models/caesar_diffusion.pth) |
+| `caesar_d.pth`           |Generative model based compression               | [Download](https://yourdomain.com/models/caesar_sr.pth)|
 
 > 📂 Place downloaded models into the `./pretrained/` folder.
 
@@ -53,9 +52,7 @@ Example scientific datasets used in this work:
 
 | Dataset         | Description                          | Download Link                                                        |
 |:----------------|:--------------------------------------|:---------------------------------------------------------------------|
-| **S3D**         | Combustion ignition dataset            | [Zenodo](https://doi.org/10.5281/zenodo.6352377)                     |
-| **E3SM-PSL**    | Climate simulation data                | [NERSC E3SM Portal](https://portal.nersc.gov/project/m1517/E3SM_simulations/) |
-| **Hurricane**   | NCAR hurricane simulation dataset      | [VTK Wiki](https://www.vtk.org/Wiki/VTK/Hurricane_Dataset)           |
+| **Liangji Change it**         | Combustion ignition dataset            | [Zenodo](https://doi.org/10.5281/zenodo.6352377)                     |
 
 Download and organize datasets into the `./data/` folder as per instructions in `data/README.md`.
 
