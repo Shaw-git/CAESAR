@@ -5,12 +5,9 @@
 
 ## 📖 Overview  
 
-CAESAR is a scalable, deep learning-based framework for efficient lossy compression of scientific data. It integrates foundation autoencoder models and generative diffusion-based models with super-resolution modules to achieve high compression ratios while preserving critical scientific structures.
-
-This repository provides:
-- Code for evaluation  
-- Pretrained model weights  
-- Dataset download instructions  
+We introduce CAESAR, a new framework for spatio-temporal scientific data reduction that stands for Conditional AutoEncoder with Super-resolution for Augmented Reduction. The baseline model, CAESAR-V, is built on a standard variational autoencoder with scale hyperpriors and super-resolution modules to achieve high compression. It encodes data into a latent space and uses learned priors for compact, information-rich representation. The enhanced version, CAESAR-D, begins by compressing keyframes using an autoencoder and extends the architecture by incorporating conditional diffusion to interpolate the latent spaces of missing frames between keyframes. This enables high-fidelity reconstruction of intermediate data without requiring their explicit storage.
+Additionally, we develop a GPU-accelerated postprocessing module that enforces error bounds on the reconstructed data, achieving real-time compression while maintaining rigorous accuracy guarantees. Combined together, this offers a set of solutions that balance compression efficiency, reconstruction accuracy, and computational cost for scientific data workflows.
+Experimental results across multiple scientific datasets demonstrate that our framework achieves significantly better NRMSE rates compared to rule-based compressors such as SZ3, especially for higher compression ratios.
 
 ---
 
