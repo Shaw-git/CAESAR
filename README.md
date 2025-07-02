@@ -37,7 +37,7 @@ pip install -r requirements.txt
 
 ## 📝 Pretrained Models  
 
-We provide 3 pretrained models for evaluation:
+We provide 4 pretrained models for evaluation:
 
 | Model                   | Description                                     | Download Link                                           |
 |:------------------------|:------------------------------------------------|:-------------------------------------------------------|
