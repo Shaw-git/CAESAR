@@ -60,6 +60,15 @@ Download and organize datasets into the `./data/` folder as per instructions in 
 
 ---
 
+## 🗂️ Data Organization
+
+All datasets used in this work are stored in NumPy `.npz` format and follow a standardized 5D tensor structure:
+[variable, n_samples, T, H, W]
+- **variable**: number of physical quantities 
+- **n_samples**: number of independent spatial samples
+- **T**: number of time steps per sample
+- **H/W**: spatial resolution (height × width)
+
 ## 🚀 Usage  
 
 ### Run compression on dataset  
