@@ -21,7 +21,7 @@ Additionally, we develop a **GPU-accelerated postprocessing module** that enforc
 ### 1️⃣ Clone the repository  
 
 ```bash
-git clone https://github.com/yourusername/CAESAR.git
+git clone https://github.com/Shaw-git/CAESAR.git
 cd CAESAR
 ```
 
