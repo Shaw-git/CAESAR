@@ -31,6 +31,8 @@ class CAESAR:
         self.interpo_rate = interpo_rate
         self.cond_idx = torch.arange(0,n_frame,interpo_rate)
         self.pred_idx = ~torch.isin(torch.arange(n_frame), self.cond_idx)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
     
 
     def remove_module_prefix(self, state_dict):
