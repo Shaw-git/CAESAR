@@ -78,6 +78,10 @@ All datasets used in this work are stored in NumPy `.npz` format and follow a st
 - **T**: number of time steps per sample
 - **H/W**: spatial resolution (height × width)
 
+```bash
+np.savez("path.npz", data=your_data)
+```
+
 ## 🚀 Usage  
 
 ### Run compression on dataset  
