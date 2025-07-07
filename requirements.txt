@@ -1,6 +1,6 @@
 #python 3.10.13
 torch==2.2.0+cu118
-torchvision
+torchvision==0.17.0
 --extra-index-url https://download.pytorch.org/whl/cu118
 numpy<2
 scipy==1.15.3
@@ -14,3 +14,4 @@ einops-exts==0.0.4
 rotary-embedding-torch==0.8.6
 compressai==1.2.6
 imageio==2.37.0
+zstandard==0.23.0

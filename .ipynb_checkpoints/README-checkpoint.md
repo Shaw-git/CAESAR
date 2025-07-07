@@ -35,6 +35,14 @@ pip install -r requirements.txt
 
 ---
 
+### ✅ Tested Hardware
+This project has been tested on:
+
+- NVIDIA A100 80GB
+
+- NVIDIA RTX 2080 24GB
+
+
 ## 📝 Pretrained Models  
 
 We provide 4 pretrained models for evaluation:
