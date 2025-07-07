@@ -85,18 +85,28 @@ see eval_caesar.ipynb
 If you use CAESAR in your work, please cite:
 
 ```
-@article{li2025caesar,
-  title={CAESAR: A Unified Framework of Foundation and Generative Models for Efficient Compression of Scientific Data},
-  author={Li, Xiao and others},
-  journal={Supercomputing Conference 2025},
+@inproceedings{li2025foundation,
+  title={Foundation Model for Lossy Compression of Spatiotemporal Scientific Data},
+  author={Li, Xiao and Lee, Jaemoon and Rangarajan, Anand and Ranka, Sanjay},
+  booktitle={Pacific-Asia Conference on Knowledge Discovery and Data Mining},
+  pages={368--380},
+  year={2025},
+  organization={Springer}
+}
+
+@article{li2025generative,
+  title={Generative Latent Diffusion for Efficient Spatiotemporal Data Reduction},
+  author={Li, Xiao and Zhu, Liangji and Rangarajan, Anand and Ranka, Sanjay},
+  journal={arXiv preprint arXiv:2507.02129},
   year={2025}
 }
+
 ```
 
 ---
 
 ## 📬 Contact  
 
-For questions or feedback, feel free to contact **Xiao Li** at `xiaoli@ufl.edu`.
+For questions or feedback, feel free to contact **Xiao Li** at `xiao.li@ufl.edu`.
 
 ---
