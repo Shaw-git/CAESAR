@@ -75,13 +75,7 @@ All datasets used in this work are stored in NumPy `.npz` format and follow a st
 ### Run compression on dataset  
 
 ```bash
-python compress.py --config configs/s3d.yaml --pretrained pretrained/caesar_v.pth
-```
-
-### Run decompression  
-
-```bash
-python decompress.py --config configs/s3d.yaml --pretrained pretrained/caesar_v.pth
+see eval_caesar.ipynb
 ```
 
 ---

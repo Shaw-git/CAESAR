@@ -5,21 +5,23 @@
 
 ## 📖 Overview  
 
-CAESAR is a scalable, deep learning-based framework for efficient lossy compression of scientific data. It integrates foundation autoencoder models and generative diffusion-based models with super-resolution modules to achieve high compression ratios while preserving critical scientific structures.
+![CAESAR Framework Overview](/figures/caesar_overview.png)
 
-This repository provides:
-- Code for evaluation  
-- Pretrained model weights  
-- Dataset download instructions  
+We introduce **CAESAR**, a new framework for spatio-temporal scientific data reduction that stands for *Conditional AutoEncoder with Super-resolution for Augmented Reduction*. The baseline model, **CAESAR-V**, is built on a standard variational autoencoder with scale hyperpriors and super-resolution modules to achieve high compression. It encodes data into a latent space and uses learned priors for compact, information-rich representation.  
 
----
+The enhanced version, **CAESAR-D**, begins by compressing keyframes using an autoencoder and extends the architecture by incorporating conditional diffusion to interpolate the latent spaces of missing frames between keyframes. This enables high-fidelity reconstruction of intermediate data without requiring their explicit storage.
+
+Additionally, we develop a **GPU-accelerated postprocessing module** that enforces error bounds on the reconstructed data, achieving real-time compression while maintaining rigorous accuracy guarantees. Combined together, this offers a set of solutions that balance compression efficiency, reconstruction accuracy, and computational cost for scientific data workflows.
+
+**Experimental results** across multiple scientific datasets demonstrate that our framework achieves significantly better NRMSE rates compared to rule-based compressors such as **SZ3**, especially for higher compression ratios.
+
 
 ## 📦 Installation  
 
 ### 1️⃣ Clone the repository  
 
 ```bash
-git clone https://github.com/yourusername/CAESAR.git
+git clone https://github.com/Shaw-git/CAESAR.git
 cd CAESAR
 ```
 
@@ -35,14 +37,14 @@ pip install -r requirements.txt
 
 ## 📝 Pretrained Models  
 
-We provide 3 pretrained models for evaluation:
+We provide 4 pretrained models for evaluation:
 
 | Model                   | Description                                     | Download Link                                           |
 |:------------------------|:------------------------------------------------|:-------------------------------------------------------|
-| `caesar_v.pth`           | Variational Autoencoder-based compression       | [Download](https://yourdomain.com/models/caesar_v.pth) |
-| `caesar_sr.pth`          | Autoencoder with super-resolution module        | [Download](https://yourdomain.com/models/caesar_sr.pth)|
-| `caesar_diffusion.pth`   | Conditional diffusion-based generative model    | [Download](https://yourdomain.com/models/caesar_diffusion.pth) |
-
+| `caesar_v.pth`                  |CAESAE-V                                         | [Google Drive](https://drive.google.com/file/d/1sVmxgdg0EdyRK2PhihVamToR2gdRu1nz/view?usp=sharing) |
+| `caesar_d.pth`                  |CAESAE-D                                         | [Google Drive](https://drive.google.com/file/d/16J4Uv0RPGPAZLHqm2MlpX9SS1dr-gJW2/view?usp=sharing)|
+| `caesar_v_tuning_Turb-Rot.pth`  |CAESAE-V Finetuned on Turb-Rot dataset    | [Google Drive](https://drive.google.com/file/d/1fF8MTTWofyq2ihrc1dn0yfrLtZyE1bR9/view?usp=drive_link)|
+| `caesar_d_tuning_Turb-Rot.pth`  |CAESAE-D Finetuned on Turb-Rot dataset    | [Google Drive](https://drive.google.com/file/d/1EjyD93FPgwpPDbdWbW9vT1_Cph_JqTis/view?usp=drive_link)|
 > 📂 Place downloaded models into the `./pretrained/` folder.
 
 ---
@@ -53,26 +55,27 @@ Example scientific datasets used in this work:
 
 | Dataset         | Description                          | Download Link                                                        |
 |:----------------|:--------------------------------------|:---------------------------------------------------------------------|
-| **S3D**         | Combustion ignition dataset            | [Zenodo](https://doi.org/10.5281/zenodo.6352377)                     |
-| **E3SM-PSL**    | Climate simulation data                | [NERSC E3SM Portal](https://portal.nersc.gov/project/m1517/E3SM_simulations/) |
-| **Hurricane**   | NCAR hurricane simulation dataset      | [VTK Wiki](https://www.vtk.org/Wiki/VTK/Hurricane_Dataset)           |
+| **Turb-Rot**         | Rotating turbulence dataset            | [Google Drive](https://drive.google.com/file/d/16nusjTsjxjpvRNBzusrpT2mUKi0Cg3VS/view?usp=drive_link)                     |
 
 Download and organize datasets into the `./data/` folder as per instructions in `data/README.md`.
 
 ---
+
+## 🗂️ Data Organization
+
+All datasets used in this work are stored in NumPy `.npz` format and follow a standardized 5D tensor structure:
+[variable, n_samples, T, H, W]
+- **variable**: number of physical quantities 
+- **n_samples**: number of independent spatial samples
+- **T**: number of time steps per sample
+- **H/W**: spatial resolution (height × width)
 
 ## 🚀 Usage  
 
 ### Run compression on dataset  
 
 ```bash
-python compress.py --config configs/s3d.yaml --pretrained pretrained/caesar_v.pth
-```
-
-### Run decompression  
-
-```bash
-python decompress.py --config configs/s3d.yaml --pretrained pretrained/caesar_v.pth
+see eval_caesar.ipynb
 ```
 
 ---
