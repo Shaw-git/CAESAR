@@ -125,9 +125,10 @@ class CAESAR:
             recons_data   = self.transform_shape(recons_data)
 
             
-        original_data = dataset_org.original_data()
+#         original_data = dataset_org.original_data()
         
-        meta_data, compressed_gae = self.postprocessing_encoding(original_data, recons_data, eb)
+#         meta_data, compressed_gae = self.postprocessing_encoding(original_data, recons_data, eb)
+        meta_data ,compressed_gae = None, None
         
         return {"latent": compressed_latent, "postprocess": compressed_gae, "meta_data": meta_data, "shape": shape}, latent_bytes + meta_data["data_bytes"]
     
@@ -144,7 +145,7 @@ class CAESAR:
             recons_data = self.transform_shape(recons_data)
 
 
-        recons_data = self.postprocessing_decoding(recons_data, compressed["meta_data"], compressed["postprocess"])
+        # recons_data = self.postprocessing_decoding(recons_data, compressed["meta_data"], compressed["postprocess"])
         return recons_data
             
             
