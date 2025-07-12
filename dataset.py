@@ -267,28 +267,38 @@ class ScientificDataset(BaseDataset):
         assert self.shape[-2] % 256 == 0 and self.shape[-1] % 256 == 0, "Data dimensions are recommended to be multiples of 256 for optimal performance. Suggested shapes include (256, 256), (512, 512), etc."
 
         self.delta_t = self.n_frame - self.n_overlap
-        self.t_samples = (self.shape[2] - self.n_frame) // self.delta_t + 1
-        # print(self.shape[2],self.n_frame, self.delta_t)
-        
-        assert (self.shape[2] - self.n_frame) % self.delta_t == 0,  f"Invalid configuration: (timesteps {self.shape[2]} - n_frame {self.n_frame}) must be divisible by delta_t {self.delta_t}."
-
-        
+        #self.t_samples = (self.shape[2] - self.n_frame) // self.delta_t + 1
+        #print(self.shape[2],self.n_frame, self.delta_t)
+        T = self.shape[2]
+        self.t_samples = math.ceil((T - self.n_frame) / self.delta_t) + 1
+        pad_T = (self.t_samples - 1) * self.delta_t + self.n_frame - T
+        self.pad_T = pad_T
         self.data_input = data  # store as instance variable for __getitem__
+    
+        if pad_T > 0:
+            tail_frames = self.data_input[:, :, -pad_T:]
+            self.data_input = torch.cat([self.data_input, tail_frames], dim=2)
+            self.shape = self.data_input.shape
+        #print(self.shape[2],self.n_frame, self.delta_t,self.t_samples)        
         self.visble_length = self.update_length()
         
         
     def original_data(self,):
         data =  self.data_input
-        
         if not self.train_mode:
             data = deblock_hw(data, *self.block_info)
-            
         if not self.inst_norm:
             data = data * self.var_scale + self.var_offset
-        
+        return data
+    
+    def input_data(self,):
+        data = self.original_data()
+        data = data[:, :, :self.shape[2]-self.pad_T, :, :]
         return data
         
-
+    def recons_data(self, recons_data):
+        return recons_data[:, :, :self.shape[2]-self.pad_T, :, :]
+            
     def load_dataset(self, data_path, variable_idx, section_range, frame_range):
         frame_range   = slice(None) if frame_range   is None else slice(frame_range[0], frame_range[1])
         section_range = slice(None) if section_range is None else slice(section_range[0], section_range[1])
