@@ -49,10 +49,10 @@ We provide 4 pretrained models for evaluation:
 
 | Model                   | Description                                     | Download Link                                           |
 |:------------------------|:------------------------------------------------|:-------------------------------------------------------|
-| `caesar_v.pth`                  |CAESAE-V                                         | [Google Drive](https://drive.google.com/file/d/1sVmxgdg0EdyRK2PhihVamToR2gdRu1nz/view?usp=sharing) |
-| `caesar_d.pth`                  |CAESAE-D                                         | [Google Drive](https://drive.google.com/file/d/16J4Uv0RPGPAZLHqm2MlpX9SS1dr-gJW2/view?usp=sharing)|
-| `caesar_v_tuning_Turb-Rot.pth`  |CAESAE-V Finetuned on Turb-Rot dataset    | [Google Drive](https://drive.google.com/file/d/1fF8MTTWofyq2ihrc1dn0yfrLtZyE1bR9/view?usp=drive_link)|
-| `caesar_d_tuning_Turb-Rot.pth`  |CAESAE-D Finetuned on Turb-Rot dataset    | [Google Drive](https://drive.google.com/file/d/1EjyD93FPgwpPDbdWbW9vT1_Cph_JqTis/view?usp=drive_link)|
+| `caesar_v.pth`                  |CAESAR-V                                         | [Google Drive](https://drive.google.com/file/d/1sVmxgdg0EdyRK2PhihVamToR2gdRu1nz/view?usp=sharing) |
+| `caesar_d.pth`                  |CAESAR-D                                         | [Google Drive](https://drive.google.com/file/d/16J4Uv0RPGPAZLHqm2MlpX9SS1dr-gJW2/view?usp=sharing)|
+| `caesar_v_tuning_Turb-Rot.pth`  |CAESAR-V Finetuned on Turb-Rot dataset    | [Google Drive](https://drive.google.com/file/d/1fF8MTTWofyq2ihrc1dn0yfrLtZyE1bR9/view?usp=drive_link)|
+| `caesar_d_tuning_Turb-Rot.pth`  |CAESAR-D Finetuned on Turb-Rot dataset    | [Google Drive](https://drive.google.com/file/d/1EjyD93FPgwpPDbdWbW9vT1_Cph_JqTis/view?usp=drive_link)|
 > 📂 Place downloaded models into the `./pretrained/` folder.
 
 ---
