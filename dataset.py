@@ -250,7 +250,6 @@ class ScientificDataset(BaseDataset):
         
         self.shape_org = data.shape
         
-        print("Data before padding:", data.shape, np.max(data), np.min(data))
         self.delta_t = self.n_frame - self.n_overlap
         T = data.shape[2]
         self.t_samples = math.ceil((T - self.n_frame) / self.delta_t) + 1
@@ -268,7 +267,6 @@ class ScientificDataset(BaseDataset):
             assert(self.norm_type != "mean_range_hw")
             data, var_offset, var_scale = normalize_data(data, self.norm_type, axis=(1, 2, 3, 4))
             self.var_offset, self.var_scale = torch.FloatTensor(var_offset), torch.FloatTensor(var_scale)
-        print("Data after padding:", data.shape, np.max(data), np.min(data))
         data = torch.FloatTensor(data)
         
         if not self.train_mode:
@@ -292,7 +290,6 @@ class ScientificDataset(BaseDataset):
     def input_data(self,):
         data = self.original_data()
         data = data[:, :, :self.shape[2]-self.pad_T, :, :]
-        print("self.pad_T", self.pad_T)
         return data
         
     def recons_data(self, recons_data):
@@ -316,7 +313,6 @@ class ScientificDataset(BaseDataset):
 
     def update_length(self):
         self.dataset_length = self.shape[0] * self.shape[1] * self.t_samples
-        print("self.shape", self.shape)
         return self.dataset_length
 
     def __len__(self):
