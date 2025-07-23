@@ -247,39 +247,37 @@ class ScientificDataset(BaseDataset):
         print(f"*************** Loading {self.dataset_name} ***************")
         
         data = self.load_dataset(self.data_path, self.variable_idx, self.section_range, self.frame_range)
-
+        
+        self.shape_org = data.shape
+        
+        print("Data before padding:", data.shape, np.max(data), np.min(data))
+        self.delta_t = self.n_frame - self.n_overlap
+        T = data.shape[2]
+        self.t_samples = math.ceil((T - self.n_frame) / self.delta_t) + 1
+        
+        pad_T = (self.t_samples - 1) * self.delta_t + self.n_frame - T
+        self.pad_T = pad_T
+        
+        if pad_T > 0:
+            tail_frames = data[:, :, -pad_T:]
+            tail_frames = tail_frames[:, :, ::-1] 
+            data = np.concatenate([data, tail_frames], axis=2)
+        self.shape = data.shape
+            
         if not self.inst_norm:
             assert(self.norm_type != "mean_range_hw")
             data, var_offset, var_scale = normalize_data(data, self.norm_type, axis=(1, 2, 3, 4))
             self.var_offset, self.var_scale = torch.FloatTensor(var_offset), torch.FloatTensor(var_scale)
-
+        print("Data after padding:", data.shape, np.max(data), np.min(data))
         data = torch.FloatTensor(data)
         
-
         if not self.train_mode:
-        
             data, self.block_info = block_hw(data, self.test_size)
-            print("Testing Data Shape",data.shape)
+            print("Testing Data Shape",self.shape_org)
     
-    
-        self.shape = data.shape
-        
         assert self.shape[-2] % 256 == 0 and self.shape[-1] % 256 == 0, "Data dimensions are recommended to be multiples of 256 for optimal performance. Suggested shapes include (256, 256), (512, 512), etc."
 
-        self.delta_t = self.n_frame - self.n_overlap
-        #self.t_samples = (self.shape[2] - self.n_frame) // self.delta_t + 1
-        #print(self.shape[2],self.n_frame, self.delta_t)
-        T = self.shape[2]
-        self.t_samples = math.ceil((T - self.n_frame) / self.delta_t) + 1
-        pad_T = (self.t_samples - 1) * self.delta_t + self.n_frame - T
-        self.pad_T = pad_T
-        self.data_input = data  # store as instance variable for __getitem__
-    
-        if pad_T > 0:
-            tail_frames = self.data_input[:, :, -pad_T:]
-            self.data_input = torch.cat([self.data_input, tail_frames], dim=2)
-            self.shape = self.data_input.shape
-        #print(self.shape[2],self.n_frame, self.delta_t,self.t_samples)        
+        self.data_input = data 
         self.visble_length = self.update_length()
         
         
@@ -294,6 +292,7 @@ class ScientificDataset(BaseDataset):
     def input_data(self,):
         data = self.original_data()
         data = data[:, :, :self.shape[2]-self.pad_T, :, :]
+        print("self.pad_T", self.pad_T)
         return data
         
     def recons_data(self, recons_data):
@@ -317,6 +316,7 @@ class ScientificDataset(BaseDataset):
 
     def update_length(self):
         self.dataset_length = self.shape[0] * self.shape[1] * self.t_samples
+        print("self.shape", self.shape)
         return self.dataset_length
 
     def __len__(self):
