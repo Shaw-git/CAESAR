@@ -261,7 +261,7 @@ class ScientificDataset(BaseDataset):
             tail_frames = data[:, :, -pad_T:]
             tail_frames = tail_frames[:, :, ::-1] 
             data = np.concatenate([data, tail_frames], axis=2)
-        self.shape = data.shape
+        #self.shape = data.shape
             
         if not self.inst_norm:
             assert(self.norm_type != "mean_range_hw")
@@ -272,8 +272,7 @@ class ScientificDataset(BaseDataset):
         if not self.train_mode:
             data, self.block_info = block_hw(data, self.test_size)
             print("Testing Data Shape",self.shape_org)
-    
-        assert self.shape[-2] % 256 == 0 and self.shape[-1] % 256 == 0, "Data dimensions are recommended to be multiples of 256 for optimal performance. Suggested shapes include (256, 256), (512, 512), etc."
+        self.shape = data.shape
 
         self.data_input = data 
         self.visble_length = self.update_length()
@@ -334,7 +333,6 @@ class ScientificDataset(BaseDataset):
 
     def __getitem__(self, idx):
         idx = idx % self.dataset_length
-
         idx0 = idx // (self.shape[1] * self.t_samples)
         idx1 = (idx // self.t_samples) % self.shape[1]
         idx2 = idx % self.t_samples
