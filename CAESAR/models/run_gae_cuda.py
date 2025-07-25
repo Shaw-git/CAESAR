@@ -278,9 +278,12 @@ class PCACompressor:
         if n_vals<256:
             main_data["coeff_int"] = main_data["coeff_int"].to(torch.uint8)
             meta_data["coeff_dtype"] = '|u1'
-        else:
+        elif n_vals<32768:
             main_data["coeff_int"] = main_data["coeff_int"].to(torch.int16)
             meta_data["coeff_dtype"] = '<i2'
+        else:
+            main_data["coeff_int"] = main_data["coeff_int"].to(torch.int32)
+            meta_data["coeff_dtype"] = '<i4'
         
         if self.device == "cpu":
             cctx = zstd.ZstdCompressor(level=21)
@@ -370,7 +373,7 @@ class PCACompressor:
         prefix_mask = bytes_to_bits(prefix_mask, meta_data["prefix_length"])
         
         mask_length = np.frombuffer(dctx.decompress(compressed_data["mask_length"]), dtype=np.uint8)
-        dtype_map= {"|u1":np.uint8,"<i2":np.int16}
+        dtype_map= {"|u1":np.uint8,"<i2":np.int16,"<i4":int32}
         coeff_int   = np.frombuffer(dctx.decompress(compressed_data["coeff_int"]), dtype=dtype_map[meta_data["coeff_dtype"]])
                                     
         main_data = {
