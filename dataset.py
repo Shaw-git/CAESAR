@@ -21,7 +21,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import math
-
+import bisect
 
 def center_crop(x, tshape):
     _, _,_, H, W = x.shape
@@ -138,6 +138,32 @@ def normalize_data(data, norm_type, axis):
 
     return normalized_data, var_mean, var_scale
 
+def data_filtering(data, n_frame):
+    V, S, T, H, W = data.shape
+    assert T % n_frame == 0
+    samples = T // n_frame  
+    filtered_blocks = []
+    filtered_labels = []
+    for v in range(V):
+        for s in range(S):
+            for blk_idx in range(samples):
+                start = blk_idx * n_frame
+                end = (blk_idx + 1) * n_frame
+                block = data[v, s, start:end]  
+
+                if torch.all(block == block.view(-1)[0]):
+                    label = v * (S * samples) + s * samples + blk_idx
+                    value = block.view(-1)[0].item()
+                    filtered_blocks.append((label, value))
+                    filtered_labels.append(label)
+    return filtered_blocks, filtered_labels
+
+def build_reverse_id_map(visble_length, filtered_labels):
+    filtered_set = set(filtered_labels)
+    valid_ids = [i for i in range(visble_length) if i not in filtered_set]
+
+    reverse_map = {i : orig for i, orig in enumerate(valid_ids)}  
+    return reverse_map
 
 class BaseDataset(Dataset):
     def __init__(self, args):
@@ -206,6 +232,7 @@ class BaseDataset(Dataset):
             offset = torch.mean(data).view([1,1,1])
             scale = data.max() - data.min()            
             assert scale != 0, "Scale is zero."
+            #if scale == 0: scale = data.max()
             data = (data - offset) / scale
             
             offset = offset.view([1,1,1])
@@ -262,21 +289,24 @@ class ScientificDataset(BaseDataset):
             tail_frames = tail_frames[:, :, ::-1] 
             data = np.concatenate([data, tail_frames], axis=2)
         #self.shape = data.shape
-            
-        if not self.inst_norm:
-            assert(self.norm_type != "mean_range_hw")
-            data, var_offset, var_scale = normalize_data(data, self.norm_type, axis=(1, 2, 3, 4))
-            self.var_offset, self.var_scale = torch.FloatTensor(var_offset), torch.FloatTensor(var_scale)
+        
+        # print("self.inst_norm:", self.inst_norm)
+        # if not self.inst_norm:
+        #     print("not self.inst_norm")
+        #     assert(self.norm_type != "mean_range_hw")
+        #     data, var_offset, var_scale = normalize_data(data, self.norm_type, axis=(1, 2, 3, 4))
+        #     self.var_offset, self.var_scale = torch.FloatTensor(var_offset), torch.FloatTensor(var_scale)
+        
         data = torch.FloatTensor(data)
         
         if not self.train_mode:
             data, self.block_info = block_hw(data, self.test_size)
-            print("Testing Data Shape",self.shape_org)
+        
+        self.filtered_blocks, self.filtered_labels = data_filtering(data, self.delta_t)
         self.shape = data.shape
-
         self.data_input = data 
         self.visble_length = self.update_length()
-        
+        self.reverse_id_map = build_reverse_id_map(self.visble_length, self.filtered_labels)
         
     def original_data(self,):
         data =  self.data_input
@@ -305,6 +335,7 @@ class ScientificDataset(BaseDataset):
             data = center_crop(data, self.resolution)
         self.dtype = data.dtype
         data = data.astype(np.float32)
+
         return data
     
     def deblocking_hw(self,data):
@@ -315,7 +346,7 @@ class ScientificDataset(BaseDataset):
         return self.dataset_length
 
     def __len__(self):
-        return self.visble_length
+        return self.visble_length - len(self.filtered_blocks)
 
     def post_processing(self, data, var_idx, is_training):
         if is_training:
@@ -333,6 +364,9 @@ class ScientificDataset(BaseDataset):
 
     def __getitem__(self, idx):
         idx = idx % self.dataset_length
+        if len(self.filtered_labels) > 0:
+            idx = self.reverse_id_map[idx]
+
         idx0 = idx // (self.shape[1] * self.t_samples)
         idx1 = (idx // self.t_samples) % self.shape[1]
         idx2 = idx % self.t_samples
@@ -341,6 +375,9 @@ class ScientificDataset(BaseDataset):
         end_t = start_t + self.n_frame
 
         data = self.data_input[idx0, idx1, start_t:end_t]
+        
+        #print(f"[__getitem__] idx=({idx0},{idx1},{start_t}:{end_t}), max={data.max():.6e}, min={data.min():.6e}")
+
         data = self.post_processing(data, idx0, self.train_mode)
         data["index"] = [idx0, idx1, start_t,end_t]
         return data
