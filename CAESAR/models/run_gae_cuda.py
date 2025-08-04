@@ -91,7 +91,6 @@ class PCA:
 
 def block2vector(block_data, patch_size=(8, 8)):
     # Get shape info
-    
     *leading_dims, T, H, W = block_data.shape
     n_h, n_w = H // patch_size[0], W // patch_size[1]
 
@@ -160,6 +159,7 @@ class PCACompressor:
         self.patch_size  = patch_size
         self.vector_size = patch_size[0] * patch_size[1]
         self.error_bound = nrmse * np.sqrt(self.vector_size)
+        self.error = nrmse
         
     def compress(self, original_data, recons_data):
         input_shape = original_data.shape
@@ -176,7 +176,7 @@ class PCACompressor:
         else:
             original_data = block2vector(original_data, self.patch_size)
             recons_data   = block2vector(recons_data,   self.patch_size)
-
+        
         residual_pca = original_data - recons_data
         norms = torch.linalg.norm(residual_pca, dim=1)
         process_mask = norms > self.error_bound
@@ -190,6 +190,25 @@ class PCACompressor:
         pca_basis = pca.components_
         all_coeff = residual_pca @ pca_basis.T
 
+
+        reconstructed_residual = all_coeff @ pca_basis  # shape: same as residual_pca
+        recon_error = reconstructed_residual - residual_pca
+        recon_error = torch.abs(recon_error)
+        recon_error_max = recon_error.max().item()
+
+        if(recon_error_max > self.error):
+            #print("[PCA] Switching to float64 due to high PCA reconstruction error.", recon_error_max)
+            residual_pca = residual_pca.double()
+            pca.fit(residual_pca)
+            pca_basis = pca.components_
+            all_coeff = residual_pca @ pca_basis.T
+            
+            # reconstructed_residual = all_coeff @ pca_basis  # shape: same as residual_pca
+            # recon_error = reconstructed_residual - residual_pca
+            # recon_error = torch.abs(recon_error)
+            # recon_error_max = recon_error.max().item()
+            # #print(f"[PCA Error] recon_error max: {recon_error.max().item():.6e}")
+        
         # Delete immediately after no longer needed
         del original_data, recons_data, residual_pca
         torch.cuda.empty_cache()
@@ -237,7 +256,6 @@ class PCACompressor:
 
         coeff_int_flatten = torch.round(all_coeff.reshape([-1])[mask.reshape(-1)] / self.quan_bin)
         unique_vals, coeff_int_flatten = torch.unique(coeff_int_flatten, return_inverse=True)
-            
         del all_coeff  # final use of all_coeff here
         torch.cuda.empty_cache()
 
@@ -246,21 +264,20 @@ class PCACompressor:
         torch.cuda.empty_cache()
 
         meta_data = {
-            "pca_basis": pca_basis,
+            "pca_basis": pca_basis,              
             "unique_vals": unique_vals,
             "quan_bin": self.quan_bin,
             "n_vec": process_mask.shape[0],
             "prefix_length": prefix_mask_flatten.shape[0],
-        }
+        }  
 
         main_data = {
             "process_mask": process_mask,          # bool cuda
             "prefix_mask": prefix_mask_flatten,    # bool cuda
             "mask_length": mask_length,            # uint8 cuda
-            "coeff_int": coeff_int_flatten         # int16 cuda
+            "coeff_int": coeff_int_flatten         # torch.unique choose
         }
 
-        # Compress losslessly
         compressed_data, data_bytes = self.compress_lossless(meta_data, main_data)
         meta_data["data_bytes"] = data_bytes
         
@@ -274,7 +291,7 @@ class PCACompressor:
         
         data_bytes = meta_data["pca_basis"].cpu().numpy().nbytes + len(meta_data["unique_vals"])* 4
         n_vals = len(meta_data["unique_vals"])
-        
+
         if n_vals<256:
             main_data["coeff_int"] = main_data["coeff_int"].to(torch.uint8)
             meta_data["coeff_dtype"] = '|u1'
@@ -313,17 +330,7 @@ class PCACompressor:
             size_each = []
             for key in compressed_data.keys():
                 size_each.append(compressed_data[key].size)
-        
-        # coeff_int = main_data["mask_length"]- main_data["mask_length"].min()
-        # encoded = encoding_unsign_integer(coeff_int)
-        # size_each[-2]= (encoded/8)
-        
-        
-        # encoded = encoding_unsign_integer(main_data["coeff_int"])
-        # size_each[-1]= (encoded/8)
-        
-#         print(np.asarray(size_each)/size_each[-1])
-        
+
         data_bytes += sum(size_each)
             
         
@@ -345,14 +352,7 @@ class PCACompressor:
         mask_length = torch.from_numpy(np.asarray(codec.decode(compressed_data["mask_length"], '|u1').cpu())).to(self.device, non_blocking=True)
         
         coeff_int = torch.from_numpy(np.asarray(codec.decode(compressed_data["coeff_int"], meta_data["coeff_dtype"]).cpu())).to(self.device, non_blocking=True)
-        
-#         minimal_bit = meta_data["minimal_bit"]
-        
-#         coeff_int = coeff_int.reshape([-1, minimal_bit])
-#         shifts = torch.arange(minimal_bit-1, -1, -1, device=self.device, dtype=torch.int16)
-#         coeff_int = torch.sum(coeff_int.to(torch.int16) << shifts, dim=-1)
-        
-        
+                
         main_data = {
             "process_mask": process_mask,
             "prefix_mask": prefix_mask,
@@ -373,8 +373,9 @@ class PCACompressor:
         prefix_mask = bytes_to_bits(prefix_mask, meta_data["prefix_length"])
         
         mask_length = np.frombuffer(dctx.decompress(compressed_data["mask_length"]), dtype=np.uint8)
-        dtype_map= {"|u1":np.uint8,"<i2":np.int16,"<i4":int32}
+        dtype_map= {"|u1":np.uint8,"<i2":np.int16, "<i4":np.int32}
         coeff_int   = np.frombuffer(dctx.decompress(compressed_data["coeff_int"]), dtype=dtype_map[meta_data["coeff_dtype"]])
+        print("dtype=dtype_map[meta_data[coeff_dtype]]",dtype_map[meta_data["coeff_dtype"]])
                                     
         main_data = {
             "process_mask": torch.from_numpy(process_mask),
@@ -402,8 +403,9 @@ class PCACompressor:
             main_data = self.decompress_lossless(meta_data, compressed_data)
 
         index_mask = index_mask_reverse(main_data["prefix_mask"], main_data["mask_length"], meta_data["pca_basis"].shape[0])
-        coeff = torch.zeros(index_mask.shape, dtype=torch.float32, device=self.device)
+
         coeff_int =meta_data["unique_vals"][main_data["coeff_int"].to(torch.int32)]
+        coeff = torch.zeros(index_mask.shape, dtype=coeff_int.dtype, device=self.device)
         
         coeff[index_mask] = coeff_int * self.quan_bin
 
@@ -414,9 +416,9 @@ class PCACompressor:
             assert(recons_data.shape[1] == self.vector_size)
         else:
             recons_data   = block2vector(recons_data,   self.patch_size)
-        
-        recons_data[process_mask] = recons_data[process_mask] + coeff @ pca_basis
-        
+
+        recons_data[process_mask] = recons_data[process_mask] + (coeff @ pca_basis).float()
+
         if len(input_shape) > 2:
             recons_data = vector2block(recons_data, input_shape, self.patch_size)
         
