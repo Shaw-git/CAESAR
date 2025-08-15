@@ -49,21 +49,24 @@ def save_json(json_pth, data, mode = "update"):
 class PCA:
     def __init__(self, n_components=None, device='cuda'):
         self.n_components = n_components
-        self.device = device
+        self.device = torch.device(device)
         self.components_ = None
         self.mean_ = None
 
-    def fit(self, X):
-        X = X.to(self.device)
+    def fit(self, X: torch.Tensor):
+        X = X.to(self.device)                      
         self.mean_ = torch.mean(X, dim=0)
         X_centered = X - self.mean_
-        U, S, Vt = torch.linalg.svd(X_centered, full_matrices=False)
+        
+        C = (X_centered.T @ X_centered) / (X_centered.shape[0] - 1)  
+        evals, evecs = torch.linalg.eigh(C)  
+        idx = torch.argsort(evals, descending=True)
+        Vt = evecs[:, idx].T  
+        
         if self.n_components is not None:
             Vt = Vt[:self.n_components, :]
         self.components_ = Vt
-        del X_centered, U, S
-        torch.cuda.empty_cache()
-        
+        del X_centered
         return self
 
 # def block2vector(block_data, patch_size=(8, 8)):
@@ -378,10 +381,10 @@ class PCACompressor:
         print("dtype=dtype_map[meta_data[coeff_dtype]]",dtype_map[meta_data["coeff_dtype"]])
                                     
         main_data = {
-            "process_mask": torch.from_numpy(process_mask),
-            "prefix_mask": torch.from_numpy(prefix_mask),
-            "mask_length": torch.from_numpy(mask_length),
-            "coeff_int": torch.from_numpy(coeff_int)
+            "process_mask": torch.from_numpy(process_mask.copy()),
+            "prefix_mask": torch.from_numpy(prefix_mask.copy()),
+            "mask_length": torch.from_numpy(mask_length.copy()),
+            "coeff_int": torch.from_numpy(coeff_int.copy())
         }
         
         return main_data
